@@ -15,6 +15,7 @@ UIInstructionalButton.__index = UIInstructionalButton
 function UIInstructionalButton.__constructor(scaleform)
     local _UIInstructionalButton = {
         scaleform = RequestScaleformMovie(scaleform or "INSTRUCTIONAL_BUTTONS"),
+        display = false,
         color = { r = 0, g = 0, b = 0, a = 80 },
         items = {};
     }
@@ -60,6 +61,15 @@ function UIInstructionalButton:Delete(name, control)
     self:onRefresh();
 end
 
+---Visible
+---@param bool boolean
+---@return boolean
+---@public
+function UIInstructionalButton:Visible(bool)
+    self.display = bool;
+    return self.display;
+end
+
 ---onRefresh
 ---@return void
 ---@private
@@ -97,7 +107,7 @@ end
 ---onTick
 ---@return void
 function UIInstructionalButton:onTick()
-    if (#self.items > 0) then
+    if (#self.items > 0) and (self.display) then
         DrawScaleformMovieFullscreen(self.scaleform, 255, 255, 255, 255)
     end
 end
