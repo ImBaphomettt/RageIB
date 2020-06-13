@@ -92,11 +92,13 @@ function UIInstructionalButton:Refresh()
     EndScaleformMovieMethod()
 
     for i = 1, #self.items, 1 do
-        BeginScaleformMovieMethod(self.scaleform, "SET_DATA_SLOT")
-        ScaleformMovieMethodAddParamInt(i)
-        ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, self.items[i].control, true))
-        ScaleformMovieMethodAddParamTextureNameString(self.items[i].name)
-        EndScaleformMovieMethod()
+        if self.items[i] then
+            BeginScaleformMovieMethod(self.scaleform, "SET_DATA_SLOT")
+            ScaleformMovieMethodAddParamInt(i)
+            ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, self.items[i].control, true))
+            ScaleformMovieMethodAddParamTextureNameString(self.items[i].name)
+            EndScaleformMovieMethod()
+        end
     end
 
     BeginScaleformMovieMethod(self.scaleform, "DRAW_INSTRUCTIONAL_BUTTONS")
