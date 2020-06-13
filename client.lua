@@ -3,24 +3,25 @@
 --- Created by iTexZ.
 --- DateTime: 04/06/2020 18:39
 ---
-UIInstructionalButton = setmetatable({}, UIInstructionalButton);
+UIInstructionalButton = {}
+local __instance = { __index = UIInstructionalButton }
 
----@type table
-UIInstructionalButton.__index = UIInstructionalButton
-
----__constructor
+---New
 ---@param scaleform string
 ---@return table
 ---@public
-function UIInstructionalButton.__constructor(scaleform)
-    local _UIInstructionalButton = {
+function UIInstructionalButton.New(scaleform)
+    local self = {
         scaleform = RequestScaleformMovie(scaleform or "INSTRUCTIONAL_BUTTONS"),
         display = false,
         color = { r = 0, g = 0, b = 0, a = 80 },
-        items = {};
+        items = {}
     }
-    return setmetatable(_UIInstructionalButton, UIInstructionalButton);
+    
+    return setmetatable(self, __instance)
 end
+
+UIInstructionalButton.__constructor = UIInstructionalButton.New -- compatibility
 
 ---Add
 ---@param name string
@@ -29,8 +30,24 @@ end
 ---@public
 function UIInstructionalButton:Add(name, control)
     self.items[#self.items + 1] = { name = name, control = control }
-    self:onRefresh();
 end
+
+---Remove
+---@param name string
+---@param control number
+---@return void
+---@public
+function UIInstructionalButton:Remove(name, control)
+    for i = 1, #self.items, 1 do
+        if self.items[i] then
+            if (name == nil or (self.items[i].name == name)) and (control == nil or (self.items[i].control == control)) then
+                self.items[i] = nil
+            end
+        end
+    end
+end
+
+UIInstructionalButton.Delete = UIInstructionalButton.Remove -- compatibility
 
 ---UpdateBackground
 ---@param r number
@@ -40,25 +57,8 @@ end
 ---@return table
 ---@public
 function UIInstructionalButton:UpdateBackground(r, g, b, a)
-    self.color = { r = r, g = g, b = b, a = a };
-    self:onRefresh();
+    self.color = { r = r, g = g, b = b, a = a }
     return self.color
-end
-
----Delete
----@param name string
----@param control number
----@return void
----@public
-function UIInstructionalButton:Delete(name, control)
-    for key, value in pairs(self.items) do
-        if (value.name == name) and (control == nil) then
-            self.items[key] = nil;
-        elseif (value.name == name) and (value.control == control) then
-            self.items[key] = nil;
-        end
-    end
-    self:onRefresh();
 end
 
 ---Visible
@@ -66,48 +66,52 @@ end
 ---@return boolean
 ---@public
 function UIInstructionalButton:Visible(bool)
-    self.display = bool;
-    return self.display;
+    self.display = bool
+    return self.display
 end
 
----onRefresh
+---Refresh
 ---@return void
 ---@private
-function UIInstructionalButton:onRefresh()
-    PushScaleformMovieFunction(self.scaleform, "CLEAR_ALL")
-    PopScaleformMovieFunction()
+function UIInstructionalButton:Refresh()
+    BeginScaleformMovieMethod(self.scaleform, "CLEAR_ALL")
+    EndScaleformMovieMethod()
 
-    PushScaleformMovieFunction(self.scaleform, "TOGGLE_MOUSE_BUTTONS")
-    PushScaleformMovieFunctionParameterInt(0)
-    PopScaleformMovieFunction()
+    BeginScaleformMovieMethod(self.scaleform, "TOGGLE_MOUSE_BUTTONS")
+    ScaleformMovieMethodAddParamInt(0)
+    EndScaleformMovieMethod()
 
-    PushScaleformMovieFunction(self.scaleform, "SET_BACKGROUND_COLOUR")
-    PushScaleformMovieFunctionParameterInt(self.color.r)
-    PushScaleformMovieFunctionParameterInt(self.color.g)
-    PushScaleformMovieFunctionParameterInt(self.color.b)
-    PushScaleformMovieFunctionParameterInt(self.color.a)
-    PopScaleformMovieFunction()
+    BeginScaleformMovieMethod(self.scaleform, "SET_BACKGROUND_COLOUR")
+    ScaleformMovieMethodAddParamInt(self.color.r)
+    ScaleformMovieMethodAddParamInt(self.color.g)
+    ScaleformMovieMethodAddParamInt(self.color.b)
+    ScaleformMovieMethodAddParamInt(self.color.a)
+    EndScaleformMovieMethod()
 
     PushScaleformMovieFunction(self.scaleform, "CREATE_CONTAINER")
-    PopScaleformMovieFunction()
+    EndScaleformMovieMethod()
 
-    for key, value in pairs(self.items) do
-        PushScaleformMovieFunction(self.scaleform, "SET_DATA_SLOT")
-        PushScaleformMovieFunctionParameterInt(key)
-        PushScaleformMovieMethodParameterButtonName(GetControlInstructionalButton(1, value.control, 0))
-        PushScaleformMovieFunctionParameterString(value.name)
-        PopScaleformMovieFunction()
+    for i = 1, #self.items, 1 do
+        BeginScaleformMovieMethod(self.scaleform, "SET_DATA_SLOT")
+        ScaleformMovieMethodAddParamInt(i)
+        ScaleformMovieMethodAddParamPlayerNameString(GetControlInstructionalButton(0, self.items[i].control, true))
+        ScaleformMovieMethodAddParamTextureNameString(self.items[i].name)
+        EndScaleformMovieMethod()
     end
 
-    PushScaleformMovieFunction(self.scaleform, "DRAW_INSTRUCTIONAL_BUTTONS")
-    PushScaleformMovieFunctionParameterInt(-1)
-    PopScaleformMovieFunction()
+    BeginScaleformMovieMethod(self.scaleform, "DRAW_INSTRUCTIONAL_BUTTONS")
+    ScaleformMovieMethodAddParamInt(-1)
+    EndScaleformMovieMethod()
 end
 
----onTick
+UIInstructionalButton.onRefresh = UIInstructionalButton.Refresh -- compatibility
+
+---Draw
 ---@return void
-function UIInstructionalButton:onTick()
+function UIInstructionalButton:Draw()
     if (#self.items > 0) and (self.display) then
         DrawScaleformMovieFullscreen(self.scaleform, 255, 255, 255, 255)
     end
 end
+
+UIInstructionalButton.onTick = UIInstructionalButton.Draw -- compatibility
